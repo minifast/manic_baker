@@ -1,0 +1,27 @@
+cli:
+  success:
+    start:
+      - "making friends with %s"
+      - "going to music festival with %s"
+    bootstrap:
+      - "getting french manicure with %s"
+      - "watching project runway with %s"
+    stop:
+      - "slandering %s"
+      - "running over %s"
+      - "snapchatting naked pictures of %s"
+      - "stealing boyfriend of %s"
+      - "stealing girlfriend of %s"
+    terminate:
+      - "its life is over for a reason"
+  failure:
+    start:
+      - "even seeing %s on facebook makes me sick"
+      - "can't even stand the sight of %s at lunch"
+      - "ignoring texts from %s"
+    bootstrap:
+      - "cannot change anything about %s"
+    stop:
+      - "cannot even stand to be around %s"
+    terminate:
+      - "ugh why are some people just bad"
