@@ -119,9 +119,14 @@ describe ManicBaker::Cli do
     let(:dataset) { "chicken-butt" }
     let(:server_dataset) { dataset }
     let(:fake_server) { double(:server, dataset: server_dataset, public_ip_address: "some-host") }
-    let(:fake_joyent) { double(:joyent, servers: [fake_server]) }
+    let(:fake_server_collection) { [fake_server] }
+    let(:fake_joyent) { double(:joyent, servers: fake_server_collection) }
 
-    before { cli.stub(joyent: fake_joyent, exec: nil) }
+    before do
+      fake_server.stub(reload: fake_server, destroy: nil)
+      fake_server_collection.stub(reload: fake_server_collection)
+      cli.stub(joyent: fake_joyent, exec: nil)
+    end
 
     context "with a dataset in the config" do
       before { config.dataset = dataset }

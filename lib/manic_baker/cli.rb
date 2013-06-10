@@ -72,7 +72,7 @@ module ManicBaker
         raise Thor::Error.new("ssh requires a dataset the first time out")
       end
 
-      server = joyent.servers.detect { |s| s.dataset == config.dataset }
+      server = dataset_servers.first
 
       if server.nil?
         say_message_for :ssh, :failure, config.dataset
@@ -102,8 +102,8 @@ module ManicBaker
 
     def joyent
       @joyent ||= Fog::Compute.new(
-        :provider => "Joyent",
-        :joyent_url => config.joyent_uri
+        provider: "Joyent",
+        joyent_url: config.joyent_uri
       )
     end
 
