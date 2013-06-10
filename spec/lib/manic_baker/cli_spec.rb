@@ -9,7 +9,9 @@ describe ManicBaker::Cli do
   before { cli.stub(config: config, say: nil, say_status: nil) }
 
   describe "#launch" do
-    let(:fake_server) { double(:server, reload: nil, state: "running", name: "hi") }
+    let(:dataset) { "some-image-or-other" }
+    let(:server_dataset) { dataset }
+    let(:fake_server) { double(:server, reload: nil, state: "running", name: "hi", dataset: server_dataset) }
     let(:fake_server_collection) { [fake_server] }
     let(:fake_joyent) { double(:joyent, servers: fake_server_collection) }
 
@@ -23,18 +25,27 @@ describe ManicBaker::Cli do
     end
 
     context "with a dataset" do
-      let(:dataset) { "some-image-or-other" }
       let(:config_hash) { config.to_hash.merge("dataset" => dataset) }
 
-      it "creates a new instance on joyent" do
-        fake_server_collection.should_receive(:create).with(config_hash).and_return(fake_server)
-        cli.launch(dataset)
+      context "when no instances exist with the dataset" do
+        let(:server_dataset) { "i-am-another-data-set" }
+
+        it "creates a new instance on joyent" do
+          fake_server_collection.should_receive(:create).with(config_hash).and_return(fake_server)
+          cli.launch(dataset)
+        end
+
+        it "writes the dataset to the config file" do
+          expect do
+            cli.launch(dataset)
+          end.to change { config.dataset }.from(nil).to(dataset)
+        end
       end
 
-      it "writes the dataset to the config file" do
-        expect do
-          cli.launch(dataset)
-        end.to change { config.dataset }.from(nil).to(dataset)
+      context "when an instance exists with the dataset" do
+        it "raises an error" do
+          expect { cli.launch(dataset) }.to raise_error(Thor::Error)
+        end
       end
     end
 
@@ -63,7 +74,7 @@ describe ManicBaker::Cli do
     let(:fake_joyent) { double(:joyent, servers: fake_server_collection) }
 
     before do
-      fake_server.stub(reload: fake_server)
+      fake_server.stub(reload: fake_server, destroy: nil)
       fake_server_collection.stub(reload: fake_server_collection)
       cli.stub(joyent: fake_joyent)
     end
@@ -75,6 +86,13 @@ describe ManicBaker::Cli do
         it "destroys the server" do
           fake_server.should_receive(:destroy)
           cli.panic
+        end
+
+        context "when reloading the server raises 410 Gone" do
+          it "does not raise an error" do
+            fake_server.stub(:reload).and_raise(Excon::Errors::Gone.new("no"))
+            expect { cli.panic }.to_not raise_error
+          end
         end
       end
 

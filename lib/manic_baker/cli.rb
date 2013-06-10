@@ -10,14 +10,21 @@ module ManicBaker
 
     desc "launch", "Launch a new instance, Alana"
     def launch(dataset = nil)
-      config.dataset = dataset unless dataset.nil?
+      unless dataset.nil?
+        config.dataset = dataset
+        config.save
+      end
 
       if config.dataset.nil?
         say_message_for :start, :failure, "some dataset that was nil"
         raise Thor::Error.new("launch requires a dataset the first time out")
       end
 
-      config.save
+      unless dataset_servers.empty?
+        say_message_for :start, :failure, dataset_servers
+        raise Thor::Error.new("launch cannot clobber an existing instance")
+      end
+
       say_message_for :start, :success, config.dataset
 
       server = joyent.servers.create(config.to_hash)
@@ -45,8 +52,12 @@ module ManicBaker
 
         say_waiting_until do
           dataset_servers.empty? || dataset_servers.all? do |server|
-            server.reload
-            server.state != "running"
+            begin
+              server.reload
+              server.state != "running"
+            rescue Excon::Errors::Gone
+              true
+            end
           end
         end
 
