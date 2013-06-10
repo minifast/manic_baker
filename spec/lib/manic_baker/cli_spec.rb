@@ -10,16 +10,24 @@ describe ManicBaker::Cli do
 
   describe "#launch" do
     let(:fake_server) { double(:server, reload: nil, state: "running", name: "hi") }
-    let(:fake_servers) { double(:servers, create: fake_server) }
-    let(:fake_joyent) { double(:joyent, servers: fake_servers) }
+    let(:fake_server_collection) { [fake_server] }
+    let(:fake_joyent) { double(:joyent, servers: fake_server_collection) }
 
-    before { cli.stub(joyent: fake_joyent) }
+    before do
+      fake_server.stub(reload: fake_server)
+      fake_server_collection.stub(
+        create: fake_server,
+        reload: fake_server_collection
+      )
+      cli.stub(joyent: fake_joyent)
+    end
 
     context "with a dataset" do
       let(:dataset) { "some-image-or-other" }
+      let(:config_hash) { config.to_hash.merge("dataset" => dataset) }
 
       it "creates a new instance on joyent" do
-        fake_servers.should_receive(:create).with(config_hash.merge("dataset" => dataset))
+        fake_server_collection.should_receive(:create).with(config_hash).and_return(fake_server)
         cli.launch(dataset)
       end
 
