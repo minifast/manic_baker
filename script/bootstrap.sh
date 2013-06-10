@@ -22,10 +22,10 @@ fi
 
 test -h /opt/local/bin/chef-client ;
 if [ $? -gt 0 ]; then
-  ln -s /opt/local/lib/ruby/gems/1.9.3/gems/chef-11.4.0/bin/chef-client /opt/local/bin/chef-client ;
+  ln -s /opt/local/lib/ruby/gems/1.9.3/gems/*/bin/chef-client /opt/local/bin/chef-client ;
 fi
 
 test -h /opt/local/bin/chef-solo ;
 if [ $? -gt 0 ]; then
-  ln -s /opt/local/lib/ruby/gems/1.9.3/gems/chef-11.4.0/bin/chef-solo /opt/local/bin/chef-solo ;
+  ln -s /opt/local/lib/ruby/gems/1.9.3/gems/*/bin/chef-solo /opt/local/bin/chef-solo ;
 fi
