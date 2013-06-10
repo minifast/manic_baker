@@ -5,6 +5,8 @@ boring:
   - this is seriously slower than my housekeeper?
   - really?
   - guys this is not my jam
+  - have you seen my phone.
+  - i don't really have a tumblr anymore
 success:
   start:
     - making friends with %s
@@ -25,6 +27,9 @@ success:
     - its life is over for a reason
     - it just couldn't hang
     - i feel sorry for it but not really?
+  ssh:
+    - just so happy to hang with %s
+    - going to a movie with %s tmz
 failure:
   start:
     - can't even stand the sight of %s at lunch
@@ -36,3 +41,6 @@ failure:
     - cannot even stand to be around %s
   terminate:
     - ugh why are some people just bad
+  ssh:
+    - so worried about %s
+    - does anyone know why %s isn't answering?
