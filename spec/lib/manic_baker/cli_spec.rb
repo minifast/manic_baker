@@ -96,7 +96,7 @@ describe ManicBaker::Cli do
         end
       end
 
-      context "when there the server has a different dataset" do
+      context "when the server has a different dataset" do
         let(:server_dataset) { "guess-who" }
 
         it "does not destroy the server" do
@@ -138,7 +138,7 @@ describe ManicBaker::Cli do
         end
       end
 
-      context "when there the server has a different dataset" do
+      context "when the server has a different dataset" do
         let(:server_dataset) { "guess-who" }
 
         it "does not destroy the server" do
@@ -152,6 +152,55 @@ describe ManicBaker::Cli do
 
       it "raises an exception" do
         expect { cli.ssh }.to raise_error(Thor::Error)
+      end
+    end
+  end
+
+  describe "#bootstrap" do
+    let(:dataset) { "chicken-butt" }
+    let(:server_dataset) { dataset }
+    let(:fake_server) { double(:server, dataset: server_dataset, public_ip_address: "some-host") }
+    let(:fake_server_collection) { [fake_server] }
+    let(:fake_joyent) { double(:joyent, servers: fake_server_collection) }
+    let(:fake_remote) { double(:remote, system!: nil, upload: nil) }
+
+    before do
+      fake_server.stub(reload: fake_server)
+      fake_server_collection.stub(reload: fake_server_collection)
+      cli.stub(joyent: fake_joyent, remote: fake_remote)
+    end
+
+    context "with a dataset in the config" do
+      let(:script_path) { File.expand_path("../../../../script", __FILE__) }
+
+      before { config.dataset = dataset }
+
+      context "when the server is in the same dataset" do
+        it "uploads the script directory" do
+          fake_remote.should_receive(:upload).with("#{script_path}/", "script/")
+          cli.bootstrap
+        end
+
+        it "runs the bootstrap script" do
+          fake_remote.should_receive(:system!).with("script/bootstrap.sh")
+          cli.bootstrap
+        end
+      end
+
+      context "when the server has a different dataset" do
+        let(:server_dataset) { "i-am-so-tired-of-guessing" }
+
+        it "does not destroy the server" do
+          expect { cli.bootstrap }.to raise_error(Thor::Error)
+        end
+      end
+    end
+
+    context "with no dataset in the config" do
+      before { config.dataset = nil }
+
+      it "raises an exception" do
+        expect { cli.bootstrap }.to raise_error(Thor::Error)
       end
     end
   end

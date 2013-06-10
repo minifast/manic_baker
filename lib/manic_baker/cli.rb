@@ -3,6 +3,7 @@ require "thor/shell/mean"
 require "fog"
 require "manic_baker/config"
 require "soloist/spotlight"
+require "soloist/remote"
 
 module ManicBaker
   class Cli < Thor
@@ -82,7 +83,29 @@ module ManicBaker
       exec("ssh -i #{config.private_key_path} root@#{server.public_ip_address}")
     end
 
+    desc "bootstrap", "You know those boots are like 90s style right"
+    def bootstrap
+      if config.dataset.nil?
+        say_message_for :terminate, :failure, "some dataset that was nil"
+        raise Thor::Error.new("ssh requires a dataset the first time out")
+      end
+
+      server = dataset_servers.first
+
+      if server.nil?
+        say_message_for :ssh, :failure, config.dataset
+        raise Thor::Error.new("found zero servers with dataset #{config.dataset}")
+      end
+
+      remote.upload("#{script_path}/", "script/")
+      remote.system!("script/bootstrap.sh")
+    end
+
     private
+
+    def script_path
+      File.expand_path("../../../script", __FILE__)
+    end
 
     def dataset_servers
       joyent.servers.reload.select { |s| s.dataset == config.dataset }
@@ -98,6 +121,18 @@ module ManicBaker
           end
         end
       end
+    end
+
+    # def remote_config
+    #   @remote_config ||= Soloist::RemoteConfig.new(config, remote)
+    # end
+
+    def remote
+      @remote ||= Soloist::Remote.new(
+        "root",
+        dataset_servers.first.public_ip_address,
+        config.private_key_path
+      )
     end
 
     def joyent
