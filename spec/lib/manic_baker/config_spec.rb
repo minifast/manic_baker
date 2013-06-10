@@ -14,6 +14,7 @@ describe ManicBaker::Config do
   describe "defaults" do
     its(:dataset) { should be_nil }
     its(:flavor) { should == "Small 1GB" }
+    its(:joyent_uri) { should == "https://us-east-1.api.joyentcloud.com" }
     its(:private_key_path) { should == File.expand_path("~/.ssh/id_rsa") }
     its(:public_key_path) { should == File.expand_path("~/.ssh/id_rsa.pub") }
   end

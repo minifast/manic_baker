@@ -1,51 +1,78 @@
 require "thor"
+require "thor/shell/mean"
 require "fog"
 require "manic_baker/config"
 require "soloist/spotlight"
 
 module ManicBaker
   class Cli < Thor
-    desc "launch", "Launch a new instance"
-    method_option :identity, :aliases => "-i", :desc => "The SSH identity file"
+    include Thor::Shell::Mean
+
+    desc "launch", "Launch a new instance, Alana"
     def launch(dataset = nil)
-      say_success_for :start, dataset
       config.dataset = dataset unless dataset.nil?
-      raise Thor::Error.new(failure_for(:start, "some dataset that was nil")) if config.dataset.nil?
-      joyent.servers.bootstrap(config.to_hash)
+
+      if config.dataset.nil?
+        say_message_for :start, :failure, "some dataset that was nil"
+        raise Thor::Error.new("launch requires a dataset the first time out")
+      end
+
+      config.save
+      say_message_for :start, :success, config.dataset
+
+      server = joyent.servers.create(config.to_hash)
+      wait_for_server_state(server, "running")
+
+      say_message_for :start, :success, server.name
+      server
+    end
+
+    desc "panic", "Destroy some instances or whatever?  Who cares."
+    def panic
+      if config.dataset.nil?
+        say_message_for :terminate, :failure, "some dataset that was nil"
+        raise Thor::Error.new("panic requires a dataset the first time out")
+      end
+
+      servers = joyent.servers.select { |s| s.dataset == config.dataset }
+      unless servers.empty?
+        servers.each do |server|
+          say_message_for :stop, :success, server.name
+          server.destroy
+        end
+
+        say_message_for :terminate, :success
+      end
     end
 
     private
 
+    def wait_for_server_state(server, state)
+      say_waiting
+      say_until(".", nil, false) do
+        server.reload
+        (server.state == state).tap do |is_running|
+          unless is_running
+            say_boring if rand < 0.1
+            sleep 1
+          end
+        end
+      end
+    end
+
     def joyent
-      @joyent ||= Fog::Compute.new(:provider => "Joyent")
+      @joyent ||= Fog::Compute.new(
+        :provider => "Joyent",
+        :joyent_url => config.joyent_uri
+      )
     end
 
     def config
-      @config ||= ManicBaker::Config.new(config_path)
+      @config ||= ManicBaker::Config.from_file(config_path)
     end
 
     def config_path
       @config_path ||= Soloist::Spotlight.find!(".baker.yml")
-    end
-
-    def say_success_for(stage, subject)
-      say_status(stage, success_for(stage, subject))
-    end
-
-    def success_for(stage, subject)
-      messages["success"][stage.to_s].sample % subject
-    end
-
-    def failure_for(stage, subject)
-      messages["failure"][stage.to_s].sample % subject
-    end
-
-    def messages
-      @messages ||= YAML.load_file(messages_path)["cli"]
-    end
-
-    def messages_path
-      File.expand_path("../../../config/locales/en.yml", __FILE__)
     end
   end
 end

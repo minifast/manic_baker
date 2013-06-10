@@ -1,27 +1,38 @@
-cli:
-  success:
-    start:
-      - "making friends with %s"
-      - "going to music festival with %s"
-    bootstrap:
-      - "getting french manicure with %s"
-      - "watching project runway with %s"
-    stop:
-      - "slandering %s"
-      - "running over %s"
-      - "snapchatting naked pictures of %s"
-      - "stealing boyfriend of %s"
-      - "stealing girlfriend of %s"
-    terminate:
-      - "its life is over for a reason"
-  failure:
-    start:
-      - "even seeing %s on facebook makes me sick"
-      - "can't even stand the sight of %s at lunch"
-      - "ignoring texts from %s"
-    bootstrap:
-      - "cannot change anything about %s"
-    stop:
-      - "cannot even stand to be around %s"
-    terminate:
-      - "ugh why are some people just bad"
+boring:
+  - ugh
+  - hurry uuuuuup
+  - i'm getting old
+  - this is seriously slower than my housekeeper?
+  - really?
+  - guys this is not my jam
+success:
+  start:
+    - making friends with %s
+    - going to music festival with %s
+    - drinking sangria and watching boys with %s
+    - going to the club with %s
+  bootstrap:
+    - getting french manicure with %s
+    - watching project runway with %s
+    - writing gilmore girls fanfics starring %s
+  stop:
+    - slandering %s
+    - running over %s
+    - snapchatting naked pictures of %s
+    - stealing boyfriend of %s
+    - stealing girlfriend of %s
+  terminate:
+    - its life is over for a reason
+    - it just couldn't hang
+    - i feel sorry for it but not really?
+failure:
+  start:
+    - can't even stand the sight of %s at lunch
+    - ignoring texts from %s
+    - deleting %s from facebook
+  bootstrap:
+    - cannot change anything about %s
+  stop:
+    - cannot even stand to be around %s
+  terminate:
+    - ugh why are some people just bad
