@@ -200,7 +200,9 @@ describe ManicBaker::Cli do
       before { config.dataset = dataset }
 
       context "when there is a server with the dataset" do
-        it "starts an ssh session to the host" do
+        before { Soloist::Spotlight.stub(find!: ".") }
+
+        it "runs chef using the remote config" do
           fake_remote_config.should_receive(:run_chef)
           cli.chef
         end
