@@ -2,8 +2,8 @@
 
 [![Build Status](https://travis-ci.org/minifast/manic_baker.png)](https://travis-ci.org/minifast/manic_baker) [![Code Climate](https://codeclimate.com/github/minifast/manic_baker.png)](https://codeclimate.com/github/minifast/manic_baker)
 
-|  Note: Most of the functionality in this repository is
-|        better implemented in Vagrant or Knife.
+>  Note: Most of the functionality in this repository is
+>        better implemented in Vagrant or Knife.
 
 Manic Baker lets you do all the stuff you want for a full
 continuous deployment cycle on Joyent:
